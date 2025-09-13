@@ -97,7 +97,7 @@ public class QueryService {
                 confidence = "medium";
             }
 
-            if ("medium".equals(confidence) || "high".equals(confidence)) {
+            if ("medium".equals(confidence)) {
                 String jiraSummary = "Query: " + parsedRequest.getQuery();
                 String jiraDescription = "User: " + (parsedRequest.getUserName() != null ? parsedRequest.getUserName() : "N/A") + "\n"
                         + "Repo: " + parsedRequest.getRepoOwner() + "/" + parsedRequest.getRepoName() + "\n"
