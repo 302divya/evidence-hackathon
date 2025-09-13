@@ -97,7 +97,7 @@ public class QueryService {
                 confidence = "medium";
             }
 
-            if ("medium".equals(confidence) || "high".equals(confidence)) {
+            if ("medium".equals(confidence)) {
                 String jiraSummary = "Query: " + parsedRequest.getQuery();
                 String jiraDescription = "User: " + (parsedRequest.getUserName() != null ? parsedRequest.getUserName() : "N/A") + "\n"
                         + "Repo: " + parsedRequest.getRepoOwner() + "/" + parsedRequest.getRepoName() + "\n"
@@ -108,7 +108,7 @@ public class QueryService {
                 String jiraProjectKey = "SCRUM";
 
                 String jiraResponse = jiraService.createJiraIssue(jiraProjectKey, jiraSummary, jiraDescription, "Task");
-                logger.info("Created Jira ticket: " + jiraResponse);
+                logger.info("Created Jira ticket: {}", jiraResponse);
             }
 
             String zipPath = exportService.bundleToZip(evidenceItems, "evidence_bundle_" + Instant.now().toEpochMilli() + ".zip");
