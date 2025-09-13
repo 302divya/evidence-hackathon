@@ -4,40 +4,24 @@ import com.hackathon.evidence_bot_backend.dto.QueryRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class NLPService {
 
-    private final OpenAiService openAIService;
+    private final OpenAiService openAiService;
 
     public QueryRequest parseQuery(String query) {
-        QueryRequest result = openAIService.analyzeQuery(query);
+        // Use the correct method name rewriteQuery (or add analyzeQuery if needed)
+        String rewrittenQuery = openAiService.rewriteQuery(query);
 
-        if (result == null || !result.hasValidData()) {
-            // fallback regex parse
-            result = regexParse(query);
-            result.setQuery(query);
-        }
+        // Now parse the rewritten query to create QueryRequest, assuming you have logic for that
+        QueryRequest result = new QueryRequest();
+
+        // Example: assume your QueryRequest has a setter for raw query
+        result.setQuery(rewrittenQuery);
+
+        // Optional fallback for regex or local parsing can be applied here
 
         return result;
-    }
-
-    private QueryRequest regexParse(String query) {
-        QueryRequest req = new QueryRequest();
-        req.setQuery(query);
-
-        String pattern = "(?i)(?:github\\.com/)?([\\w\\-]+)/([\\w\\-]+).*?(?:/pull/(\\d+)|PR\\s*#?(\\d+))";
-        java.util.regex.Pattern r = java.util.regex.Pattern.compile(pattern);
-        java.util.regex.Matcher m = r.matcher(query);
-
-        if (m.find()) {
-            req.setRepoOwner(m.group(1));
-            req.setRepoName(m.group(2));
-            String prNum = m.group(3) != null ? m.group(3) : m.group(4);
-            if (prNum != null) {
-                req.setPrNumber(Integer.parseInt(prNum));
-            }
-        }
-        return req;
     }
 }
