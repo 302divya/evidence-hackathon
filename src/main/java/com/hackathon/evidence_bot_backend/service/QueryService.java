@@ -25,7 +25,8 @@ public class QueryService {
     private final DocumentService documentService;
     private final ExportService exportService;
     private final AuditLogRepository auditLogRepository;
-    // private final JiraService jiraService;  // Jira service commented out
+    private final OpenAiService openAiService;
+    private final JiraService jiraService;
 
     @Value("${evidence.files.dir}")
     private String filesDir;
@@ -41,7 +42,10 @@ public class QueryService {
             return response;
         }
 
-        QueryRequest parsedRequest = nlpService.parseQuery(req.getQuery());
+        String rewrittenQuery = openAiService.rewriteQuery(req.getQuery());
+        req.setQuery(rewrittenQuery);
+
+        QueryRequest parsedRequest = nlpService.parseQuery(rewrittenQuery);
 
         List<QueryResponse.EvidenceItem> evidenceItems = new ArrayList<>();
         String summary = "";
@@ -93,16 +97,19 @@ public class QueryService {
                 confidence = "medium";
             }
 
-            /*
             if ("medium".equals(confidence) || "high".equals(confidence)) {
-                String jiraSummary = summary;
-                String jiraDescription = "Auto-created from query: \"" + parsedRequest.getQuery() + "\"";
+                String jiraSummary = "Query: " + parsedRequest.getQuery();
+                String jiraDescription = "User: " + (parsedRequest.getUserName() != null ? parsedRequest.getUserName() : "N/A") + "\n"
+                        + "Repo: " + parsedRequest.getRepoOwner() + "/" + parsedRequest.getRepoName() + "\n"
+                        + "PR Number: " + (parsedRequest.getPrNumber() != null ? parsedRequest.getPrNumber() : "N/A") + "\n"
+                        + "Jira Ticket: " + (parsedRequest.getJiraTicket() != null ? parsedRequest.getJiraTicket() : "None") + "\n"
+                        + "Date Range: " + parsedRequest.getStartDate() + " to " + parsedRequest.getEndDate();
 
-                // Replace "PROJKEY" with your actual Jira project key
-                String jiraResponse = jiraService.createJiraIssue("PROJKEY", jiraSummary, jiraDescription, "Task");
+                String jiraProjectKey = "SCRUM";
+
+                String jiraResponse = jiraService.createJiraIssue(jiraProjectKey, jiraSummary, jiraDescription, "Task");
                 logger.info("Created Jira ticket: " + jiraResponse);
             }
-            */
 
             String zipPath = exportService.bundleToZip(evidenceItems, "evidence_bundle_" + Instant.now().toEpochMilli() + ".zip");
             response.setZipDownloadUrl(zipPath);
