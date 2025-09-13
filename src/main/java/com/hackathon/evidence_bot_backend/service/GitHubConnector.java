@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.HashMap;
 import java.util.List;
+
 import java.util.Map;
 
 @Service
@@ -32,14 +33,14 @@ public class GitHubConnector {
     public Map<String, Object> fetchPR(String owner, String repo, int prNumber) {
         Map<String, Object> result = new HashMap<>();
         try {
-            // Fetch PR details
+            
             Map<String, Object> prData = webClient.get()
                     .uri("/repos/{owner}/{repo}/pulls/{number}", owner, repo, prNumber)
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
 
-            // Fetch PR reviews
+
             List<Map<String, Object>> reviews = webClient.get()
                     .uri("/repos/{owner}/{repo}/pulls/{number}/reviews", owner, repo, prNumber)
                     .retrieve()
