@@ -16,14 +16,10 @@ public class OpenAiService {
     @Value("${openai.api.key}")
     private String apiKey;
 
-    @Value("${openai.api.url}")
-    private String apiUrl;
-
     private final WebClient webClient;
 
     public OpenAiService(WebClient.Builder webClientBuilder,
                          @Value("${openai.api.url}") String apiUrl) {
-        this.apiUrl = apiUrl;
         this.webClient = webClientBuilder.baseUrl(apiUrl).build();
     }
 
